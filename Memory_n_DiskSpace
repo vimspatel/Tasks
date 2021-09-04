@@ -1,0 +1,13 @@
+
+$serverlist = 'totjdadbdev02','totjdadbtst02','totjdadb02','totdmtdb03'
+foreach ($server in $serverlist)
+{
+#$totalmemory = Get-CimInstance Win32_PhysicalMemory -ComputerName $server  | Measure-Object -Property capacity -Sum | Foreach {"{0:N2}" -f ([math]::round(($_.Sum / 1GB),2))}
+   #write-host $server  - $totalmemory 'gb'
+   write-host $server -ForegroundColor Yellow
+   Get-CimInstance -Class Win32_LogicalDisk -ComputerName $server | Select-Object SystemName , DeviceID ,@{Name="Size(GB)";Expression={$_.size/1gb}}, @{Name="Free Space(GB)";Expression={$_.freespace/1gb}}, @{Name="Free (%)";Expression={"{0,6:P0}" -f(($_.freespace/1gb) / ($_.size/1gb))}}, DriveType | Where-Object DriveType -EQ '3' | FT
+
+   get-wmiobject -ComputerName $server -class "win32_physicalmemory" -namespace "root\CIMV2" | Select-Object @{Name="Memory(GB)";Expression={$_.Capacity/1024}} | FT
+   
+#Clear-Variable -Name 'totalmemory'
+}
